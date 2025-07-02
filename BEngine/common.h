@@ -15,4 +15,10 @@
 #include <tchar.h>
 
 // C++
+#include <string>
+#include <vector>
+#include <unordered_map>
 #include <thread>
+
+// resource
+#include "resource.h"

@@ -132,9 +132,11 @@
     <ClInclude Include="BEngine.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="WindowManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BEngine.cpp" />
+    <ClCompile Include="WindowManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="BEngine.rc" />

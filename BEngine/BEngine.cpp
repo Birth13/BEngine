@@ -1,8 +1,6 @@
-﻿// BEngine.cpp : 애플리케이션에 대한 진입점을 정의
-//
-
-#include "common.h"
+﻿#include "common.h"
 #include "BEngine.h"
+#include "WindowManager.h"
 
 
 // GDI+
@@ -34,22 +32,27 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_ LPWSTR    lpCmdLine,
                      _In_ int       nCmdShow)
 {
-    UNREFERENCED_PARAMETER(hPrevInstance);
-    UNREFERENCED_PARAMETER(lpCmdLine);
+    //UNREFERENCED_PARAMETER(hPrevInstance);
+    //UNREFERENCED_PARAMETER(lpCmdLine);
 
     // splash window
     ShowSplashWindow(hInstance);
 
-    // 전역 문자열을 초기화
-    LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInstance, IDC_BENGINE, szWindowClass, MAX_LOADSTRING);
-    MyRegisterClass(hInstance);
+    //// 전역 문자열을 초기화
+    //LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+    //LoadStringW(hInstance, IDC_BENGINE, szWindowClass, MAX_LOADSTRING);
+    //MyRegisterClass(hInstance);
 
-    // 애플리케이션 초기화를 수행
-    if (!InitInstance (hInstance, nCmdShow))
-    {
-        return FALSE;
-    }
+    //// 애플리케이션 초기화를 수행
+    //if (!InitInstance (hInstance, nCmdShow))
+    //{
+    //    return FALSE;
+    //}
+
+    //
+    WindowManager::Create_Instance(hInstance).Create_Window(
+        CS_HREDRAW | CS_VREDRAW, WndProc, L"main_window",
+        10, 10, 800, 600, WS_OVERLAPPEDWINDOW, 0);
 
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_BENGINE));
 
@@ -79,7 +82,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 {
     WNDCLASSEXW wcex;
 
-    wcex.cbSize = sizeof(WNDCLASSEX);
+    wcex.cbSize = sizeof(WNDCLASSEXW);
 
     wcex.style          = CS_HREDRAW | CS_VREDRAW;
     wcex.lpfnWndProc    = WndProc;

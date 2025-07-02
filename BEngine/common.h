@@ -8,8 +8,11 @@
 // Windows
 #include <windows.h>
 
-// C 런타임
+// C
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
+
+// C++
+#include <thread>

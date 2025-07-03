@@ -2,288 +2,161 @@
 #include "BEngine.h"
 #include "WindowManager.h"
 
-
 // GDI+
 #include <objidl.h>
 #include <gdiplus.h>
 #pragma comment (lib, "Gdiplus.lib")
 
-#define MAX_LOADSTRING 100
+// 메인 윈도우 프로시저
+LRESULT CALLBACK Main_Window_Procedure(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
 
-// 전역 변수:
-HINSTANCE hInst;                                // 현재 인스턴스
-WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트
-WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름
+// 스플래시 윈도우 프로시저
+LRESULT CALLBACK Splash_Window_Procedure(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
 
-ULONG_PTR gdiplusToken;
+// 윈도우 메인 함수
+int APIENTRY wWinMain(HINSTANCE hinstance, HINSTANCE previous_hinstance, LPWSTR command_line, int command_show) {
+	// 메모리 누수 디버그
+#if defined(DEBUG) | defined(_DEBUG)
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif
 
-// 이 코드 모듈에 포함된 함수의 선언을 전달
-ATOM                MyRegisterClass(HINSTANCE hInstance);
-BOOL                InitInstance(HINSTANCE, int);
-LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+	// 윈도우 매니저 인스턴스 생성
+	WindowManager::Create_Instance(hinstance);
 
-// Splash Window
-LRESULT CALLBACK SplashWndProc(HWND, UINT, WPARAM, LPARAM);
-void ShowSplashWindow(HINSTANCE);
+	// 스플래시 윈도우
+	{
+		// GDI+ 초기화
+		ULONG_PTR g_gdiplus_token;
+		Gdiplus::GdiplusStartupInput gdiplus_startup_input;
+		Gdiplus::GdiplusStartup(&g_gdiplus_token, &gdiplus_startup_input, nullptr);
 
-int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-                     _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPWSTR    lpCmdLine,
-                     _In_ int       nCmdShow)
+		// 윈도우 생성
+		HWND hwnd = WindowManager::Get_Instance().Create_Window(
+			0, Splash_Window_Procedure, L"splash_window",
+			CW_USEDEFAULT, CW_USEDEFAULT, 400, 400, WS_POPUP, WS_EX_TOOLWINDOW | WS_EX_TOPMOST, SW_HIDE);
+
+		// 윈도우 중앙 설정
+		ShowWindow(WindowManager::Get_Instance().Center_To_Screen(L"splash_window"), SW_SHOW);
+
+		// 메세지 루프 (지금은 임시로 3초. 실제로는 로딩 시간 동안)
+		DWORD start = GetTickCount();
+		MSG message;
+		while (GetTickCount() - start < 3000) {
+			while (PeekMessage(&message, 0, 0, 0, PM_REMOVE)) {
+				TranslateMessage(&message);
+				DispatchMessage(&message);
+			}
+
+			Sleep(10);
+		}
+
+		// 스플래시 윈도우 파괴
+		WindowManager::Get_Instance().Destroy_Window(L"splash_window");
+		Gdiplus::GdiplusShutdown(g_gdiplus_token);
+	}
+
+	// 메인 윈도우
+	WindowManager::Get_Instance().Create_Window(
+		CS_HREDRAW | CS_VREDRAW, Main_Window_Procedure, L"main_window",
+		10, 10, 800, 600, WS_OVERLAPPEDWINDOW, 0);
+
+	MSG message = { 0 };
+
+	// 메세지 루프
+	while (message.message != WM_QUIT) {
+		if (PeekMessage(&message, 0, 0, 0, PM_REMOVE)) {
+			TranslateMessage(&message);
+			DispatchMessage(&message);
+		}
+		else {
+			// 게임 로직
+		}
+	}
+
+	return 0;
+}
+
+LRESULT CALLBACK Main_Window_Procedure(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
-    //UNREFERENCED_PARAMETER(hPrevInstance);
-    //UNREFERENCED_PARAMETER(lpCmdLine);
+	switch (message) {
+	case WM_COMMAND:
+	{
+		int wmId = LOWORD(wparam);
+		// 메뉴 선택을 구문 분석
+		switch (wmId)
+		{
+		case IDM_ABOUT:
+			break;
+		case IDM_EXIT:
+			DestroyWindow(hwnd);
+			break;
+		default:
+			return DefWindowProc(hwnd, message, wparam, lparam);
+		}
+	}
 
-    // splash window
-    ShowSplashWindow(hInstance);
+	return 0;
+	case WM_PAINT:
+	{
+		PAINTSTRUCT paint_struct;
+		HDC hdc = BeginPaint(hwnd, &paint_struct);
 
-    //// 전역 문자열을 초기화
-    //LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    //LoadStringW(hInstance, IDC_BENGINE, szWindowClass, MAX_LOADSTRING);
-    //MyRegisterClass(hInstance);
+		// 배경 클리어
+		RECT rect;
+		GetClientRect(hwnd, &rect);
+		FillRect(hdc, &rect, (HBRUSH)(COLOR_WINDOW + 1));
 
-    //// 애플리케이션 초기화를 수행
-    //if (!InitInstance (hInstance, nCmdShow))
-    //{
-    //    return FALSE;
-    //}
+		// 출력
+		SetBkMode(hdc, TRANSPARENT);
+		DrawTextW(hdc, L"Hello, World!!", -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 
-    //
-    WindowManager::Create_Instance(hInstance).Create_Window(
-        CS_HREDRAW | CS_VREDRAW, WndProc, L"main_window",
-        10, 10, 800, 600, WS_OVERLAPPEDWINDOW, 0);
+		EndPaint(hwnd, &paint_struct);
+	}
 
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_BENGINE));
+	return 0;
+	case WM_KEYUP:
+		if (wparam == VK_ESCAPE) {
+			PostQuitMessage(0);
+		}
 
-    MSG msg;
+		return 0;
+	case WM_DESTROY:
+		PostQuitMessage(0);
 
-    // 기본 메시지 루프
-    while (GetMessage(&msg, nullptr, 0, 0))
-    {
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-    }
-
-    return (int) msg.wParam;
+		return 0;
+	default:
+		return DefWindowProc(hwnd, message, wparam, lparam);
+	}
 }
 
+LRESULT CALLBACK Splash_Window_Procedure(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam) {
+	static Gdiplus::Image* splash_image = nullptr;
 
+	switch (message) {
+	case WM_CREATE:
+		// 이미지를 로드
+		splash_image = Gdiplus::Image::FromFile(L"image\\icon.png");
 
-//
-//  함수: MyRegisterClass()
-//
-//  용도: 창 클래스를 등록
-//
-ATOM MyRegisterClass(HINSTANCE hInstance)
-{
-    WNDCLASSEXW wcex;
+		return 0;
+	case WM_PAINT:
+		// 이미지를 출력
+		if (splash_image) {
+			PAINTSTRUCT ps;
+			HDC hdc = BeginPaint(hwnd, &ps);
+			Gdiplus::Graphics graphic(hdc);
+			graphic.DrawImage(splash_image, 0, 0, 400, 400);
 
-    wcex.cbSize = sizeof(WNDCLASSEXW);
+			EndPaint(hwnd, &ps);
+		}
 
-    wcex.style          = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc    = WndProc;
-    wcex.cbClsExtra     = 0;
-    wcex.cbWndExtra     = 0;
-    wcex.hInstance      = hInstance;
-    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_BENGINE));
-    wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_BENGINE);
-    wcex.lpszClassName  = szWindowClass;
-    wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+		return 0;
+	case WM_DESTROY:
+		// 이미지 해제
+		delete[] splash_image;
+		splash_image = nullptr;
 
-    return RegisterClassExW(&wcex);
-}
-
-//
-//   함수: InitInstance(HINSTANCE, int)
-//
-//   용도: 인스턴스 핸들을 저장하고 주 창을 생성
-//
-//   주석:
-//
-//        이 함수를 통해 인스턴스 핸들을 전역 변수에 저장
-//        주 프로그램 창을 만든 다음 표시
-//
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
-{
-   hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장
-
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
-
-   if (!hWnd)
-   {
-      return FALSE;
-   }
-
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
-
-   return TRUE;
-}
-
-//
-//  함수: WndProc(HWND, UINT, WPARAM, LPARAM)
-//
-//  용도: 주 창의 메시지를 처리
-//
-//  WM_COMMAND  - 애플리케이션 메뉴를 처리
-//  WM_PAINT    - 주 창을 그립
-//  WM_DESTROY  - 종료 메시지를 게시하고 반환
-//
-//
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    switch (message)
-    {
-    case WM_COMMAND:
-        {
-            int wmId = LOWORD(wParam);
-            // 메뉴 선택을 구문 분석
-            switch (wmId)
-            {
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
-            }
-        }
-        break;
-    case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-
-            // 배경 클리어
-            RECT rect;
-            GetClientRect(hWnd, &rect);
-            FillRect(hdc, &rect, (HBRUSH)(COLOR_WINDOW + 1));
-
-            // 출력
-            SetBkMode(hdc, TRANSPARENT);
-            DrawTextW(hdc, L"Hello, World!!", -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-
-            EndPaint(hWnd, &ps);
-        }
-        break;
-    case WM_KEYUP:
-        if (wParam == VK_ESCAPE) {
-            PostQuitMessage(0);
-        }
-        break;
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        break;
-    default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
-    }
-    return 0;
-}
-
-// 정보 대화 상자의 메시지 처리기
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    UNREFERENCED_PARAMETER(lParam);
-    switch (message)
-    {
-    case WM_INITDIALOG:
-        return (INT_PTR)TRUE;
-
-    case WM_COMMAND:
-        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
-        {
-            EndDialog(hDlg, LOWORD(wParam));
-            return (INT_PTR)TRUE;
-        }
-        break;
-    }
-    return (INT_PTR)FALSE;
-}
-
-// Splash Window
-LRESULT CALLBACK SplashWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-    static Gdiplus::Image* splashImage = nullptr;
-
-    switch (msg) {
-    case WM_CREATE:
-        // 이미지를 로드
-        splashImage = Gdiplus::Image::FromFile(L"image\\icon.png");
-        return 0;
-    case WM_PAINT:
-        // 이미지를 출력
-        if (splashImage) {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-            Gdiplus::Graphics graphic(hdc);
-            graphic.DrawImage(splashImage, 0, 0, 400, 400);
-
-            EndPaint(hWnd, &ps);
-        }
-        return 0;
-    case WM_DESTROY:
-        // 이미지 해제
-        delete[] splashImage;
-        splashImage = nullptr;
-        return 0;
-    }
-
-    return DefWindowProc(hWnd, msg, wParam, lParam);
-}
-
-void ShowSplashWindow(HINSTANCE hInstance) {
-    // GDI+ 초기화
-    Gdiplus::GdiplusStartupInput gdiStartupInput;
-    Gdiplus::GdiplusStartup(&gdiplusToken, &gdiStartupInput, nullptr);
-
-    // 윈도우 생성
-    WNDCLASS wc = { 0 };
-    wc.lpfnWndProc = SplashWndProc;
-    wc.hInstance = hInstance;
-    wc.lpszClassName = L"SplashWindowClass";
-    RegisterClass(&wc);
-
-    HWND hSplash = CreateWindowEx(
-        WS_EX_TOOLWINDOW | WS_EX_TOPMOST,
-        L"SplashWindowClass", L"Splash",
-        WS_POPUP,
-        CW_USEDEFAULT, CW_USEDEFAULT, 400, 400,
-        nullptr, nullptr, hInstance, nullptr
-    );
-
-    // 중앙 배치
-    RECT rc;
-    GetClientRect(hSplash, &rc);
-    int w = 400, h = 400;
-    int screenW = GetSystemMetrics(SM_CXSCREEN);
-    int screenH = GetSystemMetrics(SM_CYSCREEN);
-    SetWindowPos(hSplash, HWND_TOP,
-        (screenW - w) / 2, (screenH - h) / 2, w, h, 0);
-
-    ShowWindow(hSplash, SW_SHOWNORMAL);
-    UpdateWindow(hSplash);
-
-    // 메세지 루프 (지금은 임시로 3초. 실제로는 로딩 시간 동안)
-    DWORD start = GetTickCount();
-    MSG msg;
-    while (GetTickCount() - start < 3000) {
-        while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-
-        Sleep(10);
-    }
-
-    // Shutdown
-    DestroyWindow(hSplash);
-    Gdiplus::GdiplusShutdown(gdiplusToken);
+		return 0;
+	default:
+		return DefWindowProc(hwnd, message, wparam, lparam);
+	}
 }

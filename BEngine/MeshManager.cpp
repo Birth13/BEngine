@@ -15,7 +15,16 @@ MeshManager& MeshManager::Get_Instance() {
 	return *mesh_manager;
 }
 
-void MeshManager::Create_Box_Mesh(std::wstring mesh_name, float width) {
+Mesh_Info& MeshManager::Create_Mesh(std::wstring mesh_name,
+	std::vector<Vertex_Info> vertices_in, std::vector<std::uint32_t> indices_32_in
+) {
+	// 매쉬 인포 저장
+	m_mesh_info_map[mesh_name] = Mesh_Info(vertices_in, indices_32_in);
+
+	return m_mesh_info_map[mesh_name];
+}
+
+Mesh_Info& MeshManager::Create_Box_Mesh(std::wstring mesh_name, float width) {
 	// 너비의 절반 계산
 	float half = width / 2.0f;
 
@@ -85,8 +94,8 @@ void MeshManager::Create_Box_Mesh(std::wstring mesh_name, float width) {
 		20, 22, 23
 	};
 
-	// 매쉬 인포 저장
-	m_mesh_info_map[mesh_name] = Mesh_Info(vertices, indices_32);
+	// 매쉬 생성
+	return Create_Mesh(mesh_name, vertices, indices_32);
 }
 
 Mesh_Info& MeshManager::Get_Mesh_Info(std::wstring mesh_name) {

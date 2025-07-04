@@ -57,6 +57,9 @@ public:
 
 	Mesh_Info& Get_Mesh_Info(std::wstring mesh_name);
 
-	void Create_Box_Mesh(std::wstring mesh_name = L"default_box_mesh", float width = 1.0f);
+	Mesh_Info& Create_Mesh(std::wstring mesh_name,
+		std::vector<Vertex_Info> vertices_in, std::vector<std::uint32_t> indices_32_in);
+
+	Mesh_Info& Create_Box_Mesh(std::wstring mesh_name = L"default_box_mesh", float width = 1.0f);
 };
 

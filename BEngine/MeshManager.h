@@ -6,6 +6,8 @@ struct Vertex_Info {
 	DirectX::XMFLOAT3 normal;	// 노말 벡터 (x, y, z)
 	DirectX::XMFLOAT4 tangent;	// 탄젠트 벡터 (x, y, z) // w : handedness
 	DirectX::XMFLOAT2 uv;	// uv 값 (x, y)
+
+	UINT material_index = -1;	// 사용하는 머터리얼 인덱스
 };
 
 struct Mesh_Info {
@@ -13,9 +15,12 @@ struct Mesh_Info {
 	std::vector<std::uint16_t> indices_16;
 	std::vector<std::uint32_t> indices_32;
 
+	std::vector<UINT> used_material_indices;	// 사용된 머터리얼 인덱스
+
 	//
 	Mesh_Info() {};
-	Mesh_Info(std::vector<Vertex_Info>& vertices_in, std::vector<std::uint32_t>& indices_32_in) {
+	Mesh_Info(std::vector<Vertex_Info>& vertices_in, std::vector<std::uint32_t>& indices_32_in,
+		std::vector<UINT>& used_material_indices_in) {
 		// 정점 정보 채우기
 		vertices.assign(vertices_in.begin(), vertices_in.end());
 
@@ -33,6 +38,9 @@ struct Mesh_Info {
 			// 인덱스(32) 정보 채우기
 			indices_32.assign(indices_32_in.begin(), indices_32_in.end());
 		}
+
+		// 사용된 머터리얼 인덱스 채우기
+		used_material_indices.assign(used_material_indices_in.begin(), used_material_indices_in.end());
 	}
 };
 
@@ -51,15 +59,24 @@ public:
 
 	// 인스턴스 관련
 
+	// 인스턴스 객체 반환
 	static MeshManager& Get_Instance();
 
 	// 매쉬 관련
 
-	Mesh_Info& Get_Mesh_Info(std::wstring mesh_name);
+	// 매쉬 이름과 일치하는 매쉬 인포 포인터 반환
+	Mesh_Info* Get_Mesh_Info(std::wstring mesh_name);
 
-	Mesh_Info& Create_Mesh(std::wstring mesh_name,
-		std::vector<Vertex_Info> vertices_in, std::vector<std::uint32_t> indices_32_in);
+	// 매쉬를 생성
+	// 정점 정보에 머터리얼 인덱스 정보가 채워져 있는 것을 전제
+	Mesh_Info* Create_Mesh(std::wstring mesh_name,
+		std::vector<Vertex_Info>& vertices_in, std::vector<std::uint32_t>& indices_32_in,
+		std::vector<UINT>& used_material_indices_in);
 
-	Mesh_Info& Create_Box_Mesh(std::wstring mesh_name = L"default_box_mesh", float width = 1.0f);
+
+	// 박스 매쉬를 생성
+	// 무조건 단일 머터리얼 생성
+	Mesh_Info* Create_Box_Mesh(float width = 1.0f,
+		std::wstring mesh_name = L"default_box_mesh", std::wstring material_name = L"default_material");
 };
 

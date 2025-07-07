@@ -19,6 +19,10 @@ Material_Info* MaterialManager::Get_Material_Info(std::wstring material_name) {
 	return &m_material_info_map[material_name];
 }
 
+Material_Info* MaterialManager::Get_Material_Info(UINT material_index) {
+	return m_material_info_pointer_map[material_index];
+}
+
 UINT MaterialManager::Get_Material_Index(std::wstring material_name) {
 	// 맵에 저장이 되어있으면 인덱스 리턴
 	if (m_material_info_map.find(material_name) != m_material_info_map.end()) {
@@ -33,6 +37,8 @@ Material_Info* MaterialManager::Create_Material(std::wstring material_name, Dire
 	// 머터리얼 인포 저장
 	m_material_info_map[material_name] = Material_Info(albedo);
 	m_material_info_map[material_name].material_index = (UINT)m_material_info_map.size() - 1U;
+
+	m_material_info_pointer_map.emplace_back(Get_Material_Info(material_name));
 
 	return &m_material_info_map[material_name];
 }

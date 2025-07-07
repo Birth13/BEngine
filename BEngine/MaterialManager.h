@@ -18,6 +18,7 @@ private:
 	static std::unique_ptr<MaterialManager> material_manager;
 
 	std::unordered_map<std::wstring, Material_Info> m_material_info_map;
+	std::vector<Material_Info*> m_material_info_pointer_map;	// index - > material info pointer
 
 public:
 	MaterialManager();
@@ -32,6 +33,8 @@ public:
 
 	// 머터리얼 이름과 일치하는 머터리얼 인포 포인터 반환
 	Material_Info* Get_Material_Info(std::wstring material_name);
+	// 머터리얼 인덱스와 일치하는 머터리얼 인포 포인터 반환
+	Material_Info* Get_Material_Info(UINT material_index);
 	// 머터리얼 인덱스 반환
 	UINT Get_Material_Index(std::wstring material_name);
 

@@ -26,10 +26,8 @@
 #include <unordered_map>
 #include <thread>
 
-// DirectX
-#ifndef RC_INVOKED
-#include <DirectXMath.h>
-#endif
+// DirectXMath Helper
+#include "XMHelper.h"
 
 // resource
 #include "resource.h"

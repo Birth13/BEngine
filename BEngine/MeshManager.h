@@ -76,7 +76,7 @@ public:
 
 	// 박스 매쉬를 생성
 	// 무조건 단일 머터리얼 생성
-	Mesh_Info* Create_Box_Mesh(float width = 1.0f,
+	Mesh_Info* Create_Box_Mesh(float width_x = 1.0f, float width_y = 1.0f, float width_z = 1.0f,
 		std::wstring mesh_name = L"default_box_mesh", std::wstring material_name = L"default_material");
 };
 

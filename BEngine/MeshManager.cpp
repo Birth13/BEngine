@@ -16,6 +16,10 @@ MeshManager& MeshManager::Get_Instance() {
 	return *mesh_manager;
 }
 
+Mesh_Info* MeshManager::Get_Mesh_Info(std::wstring mesh_name) {
+	return &m_mesh_info_map[mesh_name];
+}
+
 Mesh_Info* MeshManager::Create_Mesh(std::wstring mesh_name,
 	std::vector<Vertex_Info>& vertices_in, std::vector<std::uint32_t>& indices_32_in,
 	std::vector<UINT>& used_material_indices_in
@@ -26,7 +30,9 @@ Mesh_Info* MeshManager::Create_Mesh(std::wstring mesh_name,
 	return &m_mesh_info_map[mesh_name];
 }
 
-Mesh_Info* MeshManager::Create_Box_Mesh(float width, std::wstring mesh_name, std::wstring material_name) {
+Mesh_Info* MeshManager::Create_Box_Mesh(float width_x, float width_y, float width_z,
+	std::wstring mesh_name, std::wstring material_name
+) {
 	// 머터리얼 인덱스 얻어오기
 	UINT material_index = MaterialManager::Get_Instance().Get_Material_Index(material_name);
 
@@ -40,45 +46,47 @@ Mesh_Info* MeshManager::Create_Box_Mesh(float width, std::wstring mesh_name, std
 	used_material_indices.emplace_back(material_index);
 
 	// 너비의 절반 계산
-	float half = width / 2.0f;
+	float half_x = width_x / 2.0f;
+	float half_y = width_y / 2.0f;
+	float half_z = width_z / 2.0f;
 
 	// 정점 배열
 	std::vector<Vertex_Info> vertices = {
 		// 앞면 (-z)
-		{ { -half, -half, -half }, { 0.0f, 0.0f, -1.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 0.0f, 1.0f }, material_index },
-		{ { -half, +half, -half }, { 0.0f, 0.0f, -1.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 0.0f, 0.0f }, material_index },
-		{ { +half, +half, -half }, { 0.0f, 0.0f, -1.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 1.0f, 0.0f }, material_index },
-		{ { +half, -half, -half }, { 0.0f, 0.0f, -1.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 1.0f, 1.0f }, material_index },
+		{ { -half_x, -half_y, -half_z }, { 0.0f, 0.0f, -1.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 0.0f, 1.0f }, material_index },
+		{ { -half_x, +half_y, -half_z }, { 0.0f, 0.0f, -1.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 0.0f, 0.0f }, material_index },
+		{ { +half_x, +half_y, -half_z }, { 0.0f, 0.0f, -1.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 1.0f, 0.0f }, material_index },
+		{ { +half_x, -half_y, -half_z }, { 0.0f, 0.0f, -1.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 1.0f, 1.0f }, material_index },
 
 		// 뒷면 (+z)
-		{ { +half, -half, +half }, { 0.0f, 0.0f, +1.0f }, { -1.0f, 0.0f, 0.0f, +1.0f }, { 0.0f, 1.0f }, material_index },
-		{ { +half, +half, +half }, { 0.0f, 0.0f, +1.0f }, { -1.0f, 0.0f, 0.0f, +1.0f }, { 0.0f, 0.0f }, material_index },
-		{ { -half, +half, +half }, { 0.0f, 0.0f, +1.0f }, { -1.0f, 0.0f, 0.0f, +1.0f }, { 1.0f, 0.0f }, material_index },
-		{ { -half, -half, +half }, { 0.0f, 0.0f, +1.0f }, { -1.0f, 0.0f, 0.0f, +1.0f }, { 1.0f, 1.0f }, material_index },
+		{ { +half_x, -half_y, +half_z }, { 0.0f, 0.0f, +1.0f }, { -1.0f, 0.0f, 0.0f, +1.0f }, { 0.0f, 1.0f }, material_index },
+		{ { +half_x, +half_y, +half_z }, { 0.0f, 0.0f, +1.0f }, { -1.0f, 0.0f, 0.0f, +1.0f }, { 0.0f, 0.0f }, material_index },
+		{ { -half_x, +half_y, +half_z }, { 0.0f, 0.0f, +1.0f }, { -1.0f, 0.0f, 0.0f, +1.0f }, { 1.0f, 0.0f }, material_index },
+		{ { -half_x, -half_y, +half_z }, { 0.0f, 0.0f, +1.0f }, { -1.0f, 0.0f, 0.0f, +1.0f }, { 1.0f, 1.0f }, material_index },
 
 		// 윗면 (+y)
-		{ { -half, +half, -half }, { 0.0f, +1.0f, 0.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 0.0f, 1.0f }, material_index },
-		{ { -half, +half, +half }, { 0.0f, +1.0f, 0.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 0.0f, 0.0f }, material_index },
-		{ { +half, +half, +half }, { 0.0f, +1.0f, 0.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 1.0f, 0.0f }, material_index },
-		{ { +half, +half, -half }, { 0.0f, +1.0f, 0.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 1.0f, 1.0f }, material_index },
+		{ { -half_x, +half_y, -half_z }, { 0.0f, +1.0f, 0.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 0.0f, 1.0f }, material_index },
+		{ { -half_x, +half_y, +half_z }, { 0.0f, +1.0f, 0.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 0.0f, 0.0f }, material_index },
+		{ { +half_x, +half_y, +half_z }, { 0.0f, +1.0f, 0.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 1.0f, 0.0f }, material_index },
+		{ { +half_x, +half_y, -half_z }, { 0.0f, +1.0f, 0.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 1.0f, 1.0f }, material_index },
 
 		// 아랫면 (-y)
-		{ { -half, -half, +half }, { 0.0f, -1.0f, 0.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 0.0f, 1.0f }, material_index },
-		{ { -half, -half, -half }, { 0.0f, -1.0f, 0.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 0.0f, 0.0f }, material_index },
-		{ { +half, -half, -half }, { 0.0f, -1.0f, 0.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 1.0f, 0.0f }, material_index },
-		{ { +half, -half, +half }, { 0.0f, -1.0f, 0.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 1.0f, 1.0f }, material_index },
+		{ { -half_x, -half_y, +half_z }, { 0.0f, -1.0f, 0.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 0.0f, 1.0f }, material_index },
+		{ { -half_x, -half_y, -half_z }, { 0.0f, -1.0f, 0.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 0.0f, 0.0f }, material_index },
+		{ { +half_x, -half_y, -half_z }, { 0.0f, -1.0f, 0.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 1.0f, 0.0f }, material_index },
+		{ { +half_x, -half_y, +half_z }, { 0.0f, -1.0f, 0.0f }, { +1.0f, 0.0f, 0.0f, +1.0f }, { 1.0f, 1.0f }, material_index },
 
 		// 오른면 (+x)
-		{ { +half, -half, -half }, { +1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f, +1.0f }, { 0.0f, 1.0f }, material_index },
-		{ { +half, +half, -half }, { +1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f, +1.0f }, { 0.0f, 0.0f }, material_index },
-		{ { +half, +half, +half }, { +1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f, +1.0f }, { 1.0f, 0.0f }, material_index },
-		{ { +half, -half, +half }, { +1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f, +1.0f }, { 1.0f, 1.0f }, material_index },
+		{ { +half_x, -half_y, -half_z }, { +1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f, +1.0f }, { 0.0f, 1.0f }, material_index },
+		{ { +half_x, +half_y, -half_z }, { +1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f, +1.0f }, { 0.0f, 0.0f }, material_index },
+		{ { +half_x, +half_y, +half_z }, { +1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f, +1.0f }, { 1.0f, 0.0f }, material_index },
+		{ { +half_x, -half_y, +half_z }, { +1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f, +1.0f }, { 1.0f, 1.0f }, material_index },
 
 		// 왼면 (+x)
-		{ { -half, -half, +half }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, +1.0f, +1.0f }, { 0.0f, 1.0f }, material_index },
-		{ { -half, +half, +half }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, +1.0f, +1.0f }, { 0.0f, 0.0f }, material_index },
-		{ { -half, +half, -half }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, +1.0f, +1.0f }, { 1.0f, 0.0f }, material_index },
-		{ { -half, -half, -half }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, +1.0f, +1.0f }, { 1.0f, 1.0f }, material_index }
+		{ { -half_x, -half_y, +half_z }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, +1.0f, +1.0f }, { 0.0f, 1.0f }, material_index },
+		{ { -half_x, +half_y, +half_z }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, +1.0f, +1.0f }, { 0.0f, 0.0f }, material_index },
+		{ { -half_x, +half_y, -half_z }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, +1.0f, +1.0f }, { 1.0f, 0.0f }, material_index },
+		{ { -half_x, -half_y, -half_z }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, +1.0f, +1.0f }, { 1.0f, 1.0f }, material_index }
 	};
 
 	// 인덱스 배열
@@ -110,8 +118,4 @@ Mesh_Info* MeshManager::Create_Box_Mesh(float width, std::wstring mesh_name, std
 
 	// 매쉬 생성
 	return Create_Mesh(mesh_name, vertices, indices_32, used_material_indices);
-}
-
-Mesh_Info* MeshManager::Get_Mesh_Info(std::wstring mesh_name) {
-	return &m_mesh_info_map[mesh_name];
 }

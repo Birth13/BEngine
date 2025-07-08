@@ -133,14 +133,20 @@
     <ClInclude Include="common.h" />
     <ClInclude Include="MaterialManager.h" />
     <ClInclude Include="MeshManager.h" />
+    <ClInclude Include="Object.h" />
+    <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="WindowManager.h" />
+    <ClInclude Include="XMHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BEngine.cpp" />
     <ClCompile Include="MaterialManager.cpp" />
     <ClCompile Include="MeshManager.cpp" />
+    <ClCompile Include="Object.cpp" />
+    <ClCompile Include="ObjectManager.cpp" />
     <ClCompile Include="WindowManager.cpp" />
+    <ClCompile Include="XMHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="BEngine.rc" />

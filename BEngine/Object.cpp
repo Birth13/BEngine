@@ -11,6 +11,36 @@ Object::Object(std::vector<std::wstring>& mesh_names) {
 	Add_Meshs(mesh_names);
 }
 
+void Object::Update(float elapsed_time) {
+	Update_World_Matrix();
+	Update_Look_Up_Right();
+}
+
+void Object::Update_World_Matrix() {
+	// 이동 행렬, 회전 행렬, 확대 행렬 계산 후 월드 변환 행렬 계산
+	DirectX::XMMATRIX translate_matrix = DirectX::XMMatrixTranslation(m_translation.x, m_translation.y, m_translation.z);
+	DirectX::XMMATRIX rotate_matrix = DirectX::XMMatrixRotationQuaternion(Get_Rotation_Quaternion_V());
+	DirectX::XMMATRIX scale_matrix = DirectX::XMMatrixScaling(m_scaling.x, m_scaling.y, m_scaling.z);
+
+	DirectX::XMStoreFloat4x4(&m_world_matrix, scale_matrix * rotate_matrix * translate_matrix);
+}
+
+void Object::Update_Look_Up_Right() {
+	DirectX::XMMATRIX rotate_matrix = DirectX::XMMatrixRotationQuaternion(Get_Rotation_Quaternion_V());
+
+	// w값 관련 문제 있을 가능성 있음
+	DirectX::XMVECTOR m_look_vector = DirectX::XMVector3Normalize(DirectX::XMVector3Transform(
+		DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), rotate_matrix));
+	DirectX::XMVECTOR m_up_vector = DirectX::XMVector3Normalize(DirectX::XMVector3Transform(
+		DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), rotate_matrix));
+
+	// 룩, 업, 롸이트 벡터 저장
+	DirectX::XMStoreFloat4(&m_look, m_look_vector);
+	DirectX::XMStoreFloat4(&m_up, m_up_vector);
+	DirectX::XMStoreFloat4(&m_right, DirectX::XMVector3Normalize(
+		DirectX::XMVector3Cross(m_up_vector, m_look_vector)));
+}
+
 void Object::Add_Mesh(std::wstring& mesh_name) {
 	Mesh_Info* mesh_info = MeshManager::Get_Instance().Get_Mesh_Info(mesh_name);
 
@@ -28,6 +58,10 @@ void Object::Add_Meshs(std::vector<std::wstring>& mesh_names) {
 	for (auto& mesh_name : mesh_names) {
 		Add_Mesh(mesh_name);
 	}
+}
+
+std::vector<Mesh_Info*>& Object::Get_Meshes() {
+	return m_meshes;
 }
 
 DirectX::XMVECTOR Object::Get_Translation_V() {
@@ -72,35 +106,6 @@ DirectX::XMFLOAT4 Object::Get_Up_XMF4() {
 
 DirectX::XMFLOAT4 Object::Get_Right_XMF4() {
 	return m_right;
-}
-
-void Object::Update(float elapsed_time) {
-	Update_World_Matrix();
-}
-
-void Object::Update_World_Matrix() {
-	// 이동 행렬, 회전 행렬, 확대 행렬 계산 후 월드 변환 행렬 계산
-	DirectX::XMMATRIX translate_matrix = DirectX::XMMatrixTranslation(m_translation.x, m_translation.y, m_translation.z);
-	DirectX::XMMATRIX rotate_matrix = DirectX::XMMatrixRotationQuaternion(Get_Rotation_Quaternion_V());
-	DirectX::XMMATRIX scale_matrix = DirectX::XMMatrixScaling(m_scaling.x, m_scaling.y, m_scaling.z);
-
-	DirectX::XMStoreFloat4x4(&m_world_matrix, scale_matrix * rotate_matrix * translate_matrix);
-}
-
-void Object::Update_Look_Up_Right() {
-	DirectX::XMMATRIX rotate_matrix = DirectX::XMMatrixRotationQuaternion(Get_Rotation_Quaternion_V());
-
-	// w값 관련 문제 있을 가능성 있음
-	DirectX::XMVECTOR m_look_vector = DirectX::XMVector3Normalize(DirectX::XMVector3Transform(
-		DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), rotate_matrix));
-	DirectX::XMVECTOR m_up_vector = DirectX::XMVector3Normalize(DirectX::XMVector3Transform(
-		DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), rotate_matrix));
-
-	// 룩, 업, 롸이트 벡터 저장
-	DirectX::XMStoreFloat4(&m_look, m_look_vector);
-	DirectX::XMStoreFloat4(&m_up, m_up_vector);
-	DirectX::XMStoreFloat4(&m_right, DirectX::XMVector3Normalize(
-		DirectX::XMVector3Cross(m_up_vector, m_look_vector)));
 }
 
 void Object::Set_Translation(float translation_x, float translation_y, float translation_z) {

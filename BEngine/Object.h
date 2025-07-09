@@ -5,7 +5,7 @@ struct Mesh_Info;
 struct Material_Info;
 
 class Object {
-private:
+protected:
 	std::vector<Mesh_Info*> m_meshes;
 	std::vector<Material_Info*> m_materials;
 
@@ -29,6 +29,17 @@ public:
 
 
 
+	// 업데이트 함수들
+
+	// 오브젝트를 업데이트
+	virtual void Update(float elapsed_time);
+	// 월드 변환 행렬을 업데이트
+	void Update_World_Matrix();
+	// 룩, 업, 롸이트 벡터를 업데이트
+	void Update_Look_Up_Right();
+
+
+
 	// 매쉬 추가 함수들
 
 	// 매쉬를 추가
@@ -39,6 +50,9 @@ public:
 
 
 	// Get 함수들
+
+	// 매쉬 벡터를 반환
+	std::vector<Mesh_Info*>& Get_Meshes();
 
 	// 이동값을 XMVECTOR로 반환
 	DirectX::XMVECTOR Get_Translation_V();
@@ -66,17 +80,6 @@ public:
 	DirectX::XMFLOAT4 Get_Up_XMF4();
 	// 롸이트 벡터를 XMFLOAT4로 반환
 	DirectX::XMFLOAT4 Get_Right_XMF4();
-
-
-
-	// 업데이트 함수들
-
-	// 오브젝트를 업데이트
-	void Update(float elapsed_time);
-	// 월드 변환 행렬을 업데이트
-	void Update_World_Matrix();
-	// 룩, 업, 롸이트 벡터를 업데이트
-	void Update_Look_Up_Right();
 
 
 

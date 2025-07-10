@@ -40,6 +40,6 @@ public:
 
 	// 머터리얼을 생성
 	Material_Info* Create_Material(std::wstring material_name = L"default_material",
-		DirectX::XMFLOAT4 albedo = { 1.0f, 1.0f, 1.0f, 1.0f });
+		DirectX::XMFLOAT4 albedo = { 0.5f, 0.5f, 0.5f, 1.0f });
 };
 

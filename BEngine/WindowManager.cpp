@@ -156,3 +156,7 @@ HWND WindowManager::Center_To_Screen(std::wstring window_name) {
 HWND WindowManager::Get_HWND(std::wstring window_name) {
     return m_window_info_map[window_name].hwnd;
 }
+
+Window_Info& WindowManager::Get_Window_Info(std::wstring window_name) {
+    return m_window_info_map[window_name];
+}

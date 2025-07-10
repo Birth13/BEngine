@@ -10,6 +10,8 @@ struct Vertex_Info {
 	UINT material_index = -1;	// 사용하는 머터리얼 인덱스
 };
 
+Vertex_Info Get_Interpolated_Vertex(const Vertex_Info& vertex_info_a, const Vertex_Info& vertex_info_b, const float& t);
+
 struct Mesh_Info {
 	std::vector<Vertex_Info> vertices;
 	std::vector<std::uint16_t> indices_16;

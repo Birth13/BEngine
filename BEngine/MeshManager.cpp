@@ -1,6 +1,23 @@
 #include "MeshManager.h"
 #include "MaterialManager.h"
 
+Vertex_Info Get_Interpolated_Vertex(const Vertex_Info& vertex_info_a, const Vertex_Info& vertex_info_b, const float& t) {
+	Vertex_Info vertex_info;
+	vertex_info.position = XMHelper::Linear_Interpolation(
+		vertex_info_a.position, vertex_info_b.position, t);
+	vertex_info.normal = XMHelper::Linear_Interpolation(
+		vertex_info_a.normal, vertex_info_b.normal, t);
+	vertex_info.tangent = XMHelper::Linear_Interpolation(
+		vertex_info_a.tangent, vertex_info_b.tangent, t);
+	vertex_info.uv = XMHelper::Linear_Interpolation(
+		vertex_info_a.uv, vertex_info_b.uv, t);
+
+	vertex_info.material_index = vertex_info_a.material_index;
+
+	return vertex_info;
+}
+
+
 std::unique_ptr<MeshManager> MeshManager::mesh_manager = nullptr;
 
 MeshManager::MeshManager() {

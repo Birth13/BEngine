@@ -46,5 +46,6 @@ public:
 	HWND Center_To_Screen(std::wstring window_name);
 
 	HWND Get_HWND(std::wstring window_name);
+	Window_Info& Get_Window_Info(std::wstring window_name);
 };
 

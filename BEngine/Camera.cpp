@@ -17,6 +17,30 @@ void Camera::Update_View_Matrix() {
 	m_view_matrix = XMHelper::Calculate_View_Matrix(m_translation, m_look, m_up, m_right);
 }
 
+float Camera::Get_Near_Z() {
+	return m_near_z;
+}
+
+float Camera::Get_Far_Z() {
+	return m_far_z;
+}
+
+DirectX::XMMATRIX Camera::Get_View_Matrix_M() {
+	return DirectX::XMLoadFloat4x4(&m_view_matrix);
+}
+
+DirectX::XMFLOAT4X4 Camera::Get_View_Matrix_XMF4x4() {
+	return m_view_matrix;
+}
+
+DirectX::XMMATRIX Camera::Get_Projection_Matrix_M() {
+	return DirectX::XMLoadFloat4x4(&m_projection_matrix);
+}
+
+DirectX::XMFLOAT4X4 Camera::Get_Projection_Matrix_XMF4x4() {
+	return m_projection_matrix;
+}
+
 void Camera::Set_Frustum(float field_of_view_y, float aspect_ratio, float near_z, float far_z) {
 	m_field_of_view_y = field_of_view_y;
 	m_aspect_ratio = aspect_ratio;

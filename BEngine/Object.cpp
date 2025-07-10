@@ -52,6 +52,8 @@ void Object::Add_Mesh(std::wstring& mesh_name) {
 			m_material_index_map[i] = (UINT)m_material_index_map.size();
 		}
 	}
+
+	m_meshes.emplace_back(mesh_info);
 }
 
 void Object::Add_Meshs(std::vector<std::wstring>& mesh_names) {

@@ -1,6 +1,14 @@
 ﻿#include "common.h"
 #include "BEngine.h"
+
+#include "Object.h"
+#include "Camera.h"
+
 #include "WindowManager.h"
+#include "ObjectManager.h"
+
+#include "Renderer.h"
+#include "RectRenderer.h"
 
 // GDI+
 #include <objidl.h>
@@ -12,6 +20,12 @@ LRESULT CALLBACK Main_Window_Procedure(HWND hwnd, UINT message, WPARAM wparam, L
 
 // 스플래시 윈도우 프로시저
 LRESULT CALLBACK Splash_Window_Procedure(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
+
+// 렌더러
+std::unique_ptr<Renderer> g_renderer = nullptr;
+
+// 임시 틱 시간
+constexpr float g_elapsed_time = 1.0f / 60.0f;
 
 // 윈도우 메인 함수
 int APIENTRY wWinMain(HINSTANCE hinstance, HINSTANCE previous_hinstance, LPWSTR command_line, int command_show) {
@@ -60,6 +74,13 @@ int APIENTRY wWinMain(HINSTANCE hinstance, HINSTANCE previous_hinstance, LPWSTR 
 		CS_HREDRAW | CS_VREDRAW, Main_Window_Procedure, L"main_window",
 		10, 10, 800, 600, WS_OVERLAPPEDWINDOW, 0);
 
+	// 렌더러 생성
+	g_renderer = std::make_unique<RectRenderer>(L"main_window", 20);
+
+	// 	오브젝트 생성
+	ObjectManager::Get_Instance().Add_Object(L"test_rect", L"default_box_mesh").Set_Translation(0.0f, 0.0f, 2.0f);
+	ObjectManager::Get_Instance().Add_Camera(L"main_camera", 0.25f * DirectX::XM_PI, 800.0f / 600.0f, 1.0f, 1000.0f);
+
 	MSG message = { 0 };
 
 	// 메세지 루프
@@ -69,7 +90,6 @@ int APIENTRY wWinMain(HINSTANCE hinstance, HINSTANCE previous_hinstance, LPWSTR 
 			DispatchMessage(&message);
 		}
 		else {
-			// 게임 로직
 		}
 	}
 
@@ -79,6 +99,17 @@ int APIENTRY wWinMain(HINSTANCE hinstance, HINSTANCE previous_hinstance, LPWSTR 
 LRESULT CALLBACK Main_Window_Procedure(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
 	switch (message) {
+	case WM_CREATE:
+		// 타이머 설정
+		SetTimer(hwnd, 1, 1000 / 60, NULL);
+		
+		return 0;
+	case WM_TIMER:
+		// 오브젝트 회전 후 다시 그리기
+		ObjectManager::Get_Instance().Get_Object(L"test_rect").Rotate(1.0f, 1.0f, 0.0f);
+		InvalidateRect(hwnd, NULL, FALSE);
+
+		return 0;
 	case WM_COMMAND:
 	{
 		int wmId = LOWORD(wparam);
@@ -95,25 +126,23 @@ LRESULT CALLBACK Main_Window_Procedure(HWND hwnd, UINT message, WPARAM wparam, L
 		}
 	}
 
-	return 0;
+		return 0;
 	case WM_PAINT:
 	{
 		PAINTSTRUCT paint_struct;
 		HDC hdc = BeginPaint(hwnd, &paint_struct);
 
-		// 배경 클리어
-		RECT rect;
-		GetClientRect(hwnd, &rect);
-		FillRect(hdc, &rect, (HBRUSH)(COLOR_WINDOW + 1));
-
-		// 출력
-		SetBkMode(hdc, TRANSPARENT);
-		DrawTextW(hdc, L"Hello, World!!", -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+		// 렌더러 동작
+		if (g_renderer != nullptr) {
+			ObjectManager::Get_Instance().Update(g_elapsed_time);
+			g_renderer->Prepare_Render();
+			g_renderer->Render(hdc);
+		}
 
 		EndPaint(hwnd, &paint_struct);
 	}
 
-	return 0;
+		return 0;
 	case WM_KEYUP:
 		if (wparam == VK_ESCAPE) {
 			PostQuitMessage(0);

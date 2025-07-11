@@ -78,6 +78,23 @@ RectRenderer::~RectRenderer() {
 	DeleteDC(m_memory_dc_handle);
 }
 
+void RectRenderer::Set_Resolution_Level(int resolution_level) {
+	m_resolution_level = XMHelper::Min(resolution_level, m_max_resolution_level);
+
+	// 해상도 레벨은 최대 해상도 레벨의 약수로 제한
+	while (m_max_resolution_level % m_resolution_level != 0) {
+		--m_resolution_level;
+	}
+
+	// 버퍼의 크기 설정 (사각형의 개수)
+	m_buffer_width = m_ratio_width * m_resolution_level;
+	m_buffer_height = m_ratio_height * m_resolution_level;
+
+	// 사각형 하나의 크기 설정
+	m_rect_width = m_client_width / m_buffer_width;
+	m_rect_height = m_client_height / m_buffer_height;
+}
+
 void RectRenderer::Prepare_Render() {
 }
 
@@ -162,7 +179,8 @@ void RectRenderer::Render_Object(Object& object) {
 				polygon_info.vertices.emplace_back(vertices[m->indices_32[i + 2]]);
 
 				// 백 페이스 컬링
-				if (XMHelper::Dot(polygon_info.vertices[0].normal, DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f)) > 0) {
+				if (XMHelper::Dot(polygon_info.vertices[0].normal,
+					ObjectManager::Get_Instance().Get_Camera(L"main_camera").Get_Look_XMF4()) > 0) {
 					continue;
 				}
 
@@ -177,7 +195,8 @@ void RectRenderer::Render_Object(Object& object) {
 				polygon_info.vertices.emplace_back(vertices[m->indices_16[i + 2]]);
 
 				// 백 페이스 컬링
-				if (XMHelper::Dot(polygon_info.vertices[0].normal, DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f)) > 0) {
+				if (XMHelper::Dot(polygon_info.vertices[0].normal,
+					ObjectManager::Get_Instance().Get_Camera(L"main_camera").Get_Look_XMF4()) > 0) {
 					continue;
 				}
 

@@ -44,4 +44,5 @@ public:
 
 	// 내적 결과를 반환
 	static float Dot(const DirectX::XMFLOAT3& xmfloat3_a, const DirectX::XMFLOAT3& xmfloat3_b);
+	static float Dot(const DirectX::XMFLOAT3& xmfloat3, const DirectX::XMFLOAT4& xmfloat4);
 };

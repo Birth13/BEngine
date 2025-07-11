@@ -144,3 +144,8 @@ float XMHelper::Dot(const DirectX::XMFLOAT3& xmfloat3_a, const DirectX::XMFLOAT3
 	return DirectX::XMVectorGetX(DirectX::XMVector3Dot(
 		DirectX::XMLoadFloat3(&xmfloat3_a), DirectX::XMLoadFloat3(&xmfloat3_b)));
 }
+
+float XMHelper::Dot(const DirectX::XMFLOAT3& xmfloat3, const DirectX::XMFLOAT4& xmfloat4) {
+	return DirectX::XMVectorGetX(DirectX::XMVector3Dot(
+		DirectX::XMLoadFloat3(&xmfloat3), DirectX::XMLoadFloat4(&xmfloat4)));
+}

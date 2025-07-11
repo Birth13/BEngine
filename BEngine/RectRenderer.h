@@ -42,6 +42,13 @@ public :
 
 
 
+	// Set 함수들
+
+	// 해상도 레벨을 설정
+	void Set_Resolution_Level(int resolution_level);
+
+
+
 	// 렌더링 함수
 
 	// 렌더 준비

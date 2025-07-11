@@ -270,10 +270,13 @@ void RectRenderer::Render_Rect(Vertex_Info& vertex_info) {
 		// z buffer °ªÀ» µ¤¾î ¾²°í
 		m_z_buffer[buffer_index] = vertex_info.position.z;
 
+		Light_Info direction_light_info = ObjectManager::Get_Instance().Get_Light_Map()[0];
+		float brightness = XMHelper::Max(0.1f, -XMHelper::Dot(vertex_info.normal, direction_light_info.direction));
+
 		Material_Info* material_info = MaterialManager::Get_Instance().Get_Material_Info(vertex_info.material_index);
-		int color_r = (int)(material_info->albedo.x * 255.0f);
-		int color_g = (int)(material_info->albedo.y * 255.0f);
-		int color_b = (int)(material_info->albedo.z * 255.0f);
+		int color_r = (int)(material_info->albedo.x * 255.0f * brightness * direction_light_info.strength.x);
+		int color_g = (int)(material_info->albedo.y * 255.0f * brightness * direction_light_info.strength.y);
+		int color_b = (int)(material_info->albedo.z * 255.0f * brightness * direction_light_info.strength.z);
 
 		// Ä¥ÇØ¾ß ÇÏ´Â ÇÈ¼¿¸¸Å­ Ä¥ÇÏ±â
 		for (int i = 0; i < m_rect_height; ++i) {
@@ -281,7 +284,7 @@ void RectRenderer::Render_Rect(Vertex_Info& vertex_info) {
 				int target_x = x * m_rect_width + j;
 				int target_y = y * m_rect_height + i;
 
-				m_back_buffer[target_y * m_client_width + target_x] = RGB(color_r, color_g, color_b);
+				m_back_buffer[target_y * m_client_width + target_x] = RGB(color_b, color_g, color_r);
 			}
 		}
 	}

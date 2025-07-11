@@ -139,3 +139,8 @@ DirectX::XMFLOAT4X4 XMHelper::Calculate_View_Matrix(const DirectX::XMFLOAT4& pos
 
 	return view_matrix;
 }
+
+float XMHelper::Dot(const DirectX::XMFLOAT3& xmfloat3_a, const DirectX::XMFLOAT3& xmfloat3_b) {
+	return DirectX::XMVectorGetX(DirectX::XMVector3Dot(
+		DirectX::XMLoadFloat3(&xmfloat3_a), DirectX::XMLoadFloat3(&xmfloat3_b)));
+}

@@ -41,4 +41,7 @@ public:
 	static DirectX::XMFLOAT4X4 Calculate_View_Matrix(const DirectX::XMFLOAT4& position_in,
 		const DirectX::XMFLOAT4& target_position_in,
 		DirectX::XMFLOAT4& look_in, DirectX::XMFLOAT4& up_in, DirectX::XMFLOAT4& right_in);
+
+	// 내적 결과를 반환
+	static float Dot(const DirectX::XMFLOAT3& xmfloat3_a, const DirectX::XMFLOAT3& xmfloat3_b);
 };

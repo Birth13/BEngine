@@ -80,6 +80,7 @@ int APIENTRY wWinMain(HINSTANCE hinstance, HINSTANCE previous_hinstance, LPWSTR 
 	// 	오브젝트 생성
 	ObjectManager::Get_Instance().Add_Object(L"test_rect", L"default_box_mesh").Set_Translation(0.0f, 0.0f, 2.0f);
 	ObjectManager::Get_Instance().Add_Camera(L"main_camera", 0.25f * DirectX::XM_PI, 800.0f / 600.0f, 1.0f, 1000.0f);
+	ObjectManager::Get_Instance().Add_Light(DIRECTIONAL_LIGHT, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, 0.0f, 1.0f);
 
 	MSG message = { 0 };
 

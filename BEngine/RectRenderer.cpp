@@ -161,6 +161,11 @@ void RectRenderer::Render_Object(Object& object) {
 				polygon_info.vertices.emplace_back(vertices[m->indices_32[i + 1]]);
 				polygon_info.vertices.emplace_back(vertices[m->indices_32[i + 2]]);
 
+				// 백 페이스 컬링
+				if (XMHelper::Dot(polygon_info.vertices[0].normal, DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f)) > 0) {
+					continue;
+				}
+
 				Render_Polygon(polygon_info);
 			}
 		}
@@ -170,6 +175,11 @@ void RectRenderer::Render_Object(Object& object) {
 				polygon_info.vertices.emplace_back(vertices[m->indices_16[i]]);
 				polygon_info.vertices.emplace_back(vertices[m->indices_16[i + 1]]);
 				polygon_info.vertices.emplace_back(vertices[m->indices_16[i + 2]]);
+
+				// 백 페이스 컬링
+				if (XMHelper::Dot(polygon_info.vertices[0].normal, DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f)) > 0) {
+					continue;
+				}
 
 				Render_Polygon(polygon_info);
 			}
